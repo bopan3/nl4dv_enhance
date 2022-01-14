@@ -1,5 +1,5 @@
 import sys  
-sys.path.append("./applications/notebook")
+sys.path.append("../")
 from nl4dv import NL4DV
 import os
 import json
