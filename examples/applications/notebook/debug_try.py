@@ -9,6 +9,8 @@ nl4dv_instance.set_dependency_parser(config=dependency_parser_config)
 # nl4dv_instance.render_vis("Show average gross across genres for science fiction")
 # nl4dv_instance.render_vis("fantasy movies")
 # nl4dv_instance.render_vis("science fiction")
-nl4dv_instance.render_vis("create a barchart showing average gross across genres")
+# nl4dv_instance.render_vis("create a barchart showing average gross across genres")
+nl4dv_instance.render_vis("Show average gross across genres for science fiction")
+nl4dv_instance.render_vis("gross over 100M")
 
 

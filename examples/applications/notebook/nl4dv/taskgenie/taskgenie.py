@@ -147,6 +147,16 @@ class TaskGenie:
                 return True
         return False
 
+    #M to cater follow up query "gloss over 100M", where there is one implicit non-filter task "distribution"
+    @staticmethod
+    def has_non_filter_explicit_task_enhanced(task_map):
+        for task in task_map:
+            if task != "filter" and len(task_map[task]) != 0:
+                for task_instance in task_map[task]:
+                    if task_instance['inferenceType'] == 'explicit':
+                        return True
+        return False
+
     @staticmethod
     def has_non_filter_explicit_task_for_attr_list(task_map, attr_list):
         for task in task_map:
