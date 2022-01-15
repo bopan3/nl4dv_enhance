@@ -81,6 +81,7 @@ def setData():
         datafile_obj = dataset.rsplit(".")
         nl4dv_instance.set_data(data_url=os.path.join("assets", "data", datafile_obj[0] + ".csv"))
         nl4dv_instance.set_alias_map(alias_url=os.path.join("assets", "aliases", datafile_obj[0] + ".json"))
+        nl4dv_instance.dialog_genie_instance.previous_response = None #M reset previous_response to None when change dataset
         return get_dataset_meta()
     else:
         raise ValueError('Data not provided')
