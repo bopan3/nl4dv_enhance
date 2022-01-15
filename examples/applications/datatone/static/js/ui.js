@@ -172,23 +172,23 @@ $(globalConfig.queryBtn).on("click",function(evt){
             emptyQueryResponseContainers();
             visList = response['visList'];
 
-            // container for Input query
-            attributeMap = response['attributeMap'];
-            Object.keys(attributeMap).forEach(function(attr){
-                // ToDo:- "correlate miles per gallon horsepower and price" results in horsepower getting detected BUT due to 'horsepwer price' n-gram which becomes the queryPhrase which messes up 'price' on its own
-                // ToDo:- DataTone recreation will fail in such cases; need to modify nl4dv to maybe ensure no "words" belong to several "query_phrases" ?
-                if (attributeAmbiguityList.indexOf(attributeMap[attr]['queryPhrase'][0]) === -1 && query.includes(attributeMap[attr]['queryPhrase'][0])){
-                    attributeAmbiguityList.push(attributeMap[attr]['queryPhrase'][0]);
-                }
+            // // container for Input query
+            // attributeMap = response['attributeMap'];
+            // Object.keys(attributeMap).forEach(function(attr){
+            //     // ToDo:- "correlate miles per gallon horsepower and price" results in horsepower getting detected BUT due to 'horsepwer price' n-gram which becomes the queryPhrase which messes up 'price' on its own
+            //     // ToDo:- DataTone recreation will fail in such cases; need to modify nl4dv to maybe ensure no "words" belong to several "query_phrases" ?
+            //     if (attributeAmbiguityList.indexOf(attributeMap[attr]['queryPhrase'][0]) === -1 && query.includes(attributeMap[attr]['queryPhrase'][0])){
+            //         attributeAmbiguityList.push(attributeMap[attr]['queryPhrase'][0]);
+            //     }
 
-                 Object.keys(attributeMap[attr]["meta"]["ambiguity"]).forEach(function(val){
-                    valueAmbiguityList.push(val);
-                    queryPhraseToAttrMapping[val] = attr;
-                    attributeMap[attr]["meta"]["ambiguity"][val].forEach(function(j){
-                        dataQueryPhraseMapping[j] = val;
-                    })
-                 });
-            });
+            //      Object.keys(attributeMap[attr]["meta"]["ambiguity"]).forEach(function(val){
+            //         valueAmbiguityList.push(val);
+            //         queryPhraseToAttrMapping[val] = attr;
+            //         attributeMap[attr]["meta"]["ambiguity"][val].forEach(function(j){
+            //             dataQueryPhraseMapping[j] = val;
+            //         })
+            //      });
+            // });
 
             // Modify the query into a HTML formatted string highlighting the words that have ambiguities from attributes
             attributeAmbiguityList.forEach(function (item) {
@@ -381,86 +381,86 @@ function getVisSpec(){
        currSelections.push(oldNewAmbiguousValues[item]["new"]);
     });
 
-    for(var i=0; i < visList.length; i++){
+    // for(var i=0; i < visList.length; i++){
 
-        // We just want BAR CHART to recreate DataTone
-        if (visList[i]["vlSpec"]["mark"]["type"] != "bar"){
-            continue
-        }
+    //     // We just want BAR CHART to recreate DataTone
+    //     if (visList[i]["vlSpec"]["mark"]["type"] != "bar"){
+    //         continue
+    //     }
 
-        var is_x = "x" in visList[i]["vlSpec"]["encoding"];
-        var is_y = "y" in visList[i]["vlSpec"]["encoding"];
-        var is_c = "color" in visList[i]["vlSpec"]["encoding"];
-        var is_s = "size" in visList[i]["vlSpec"]["encoding"];
+    //     var is_x = "x" in visList[i]["vlSpec"]["encoding"];
+    //     var is_y = "y" in visList[i]["vlSpec"]["encoding"];
+    //     var is_c = "color" in visList[i]["vlSpec"]["encoding"];
+    //     var is_s = "size" in visList[i]["vlSpec"]["encoding"];
 
-        var x = null, y = null, c = null, s = null;
+    //     var x = null, y = null, c = null, s = null;
 
-        if(is_x){
-            x = visList[i]["vlSpec"]["encoding"]["x"]["field"];
-            visList[i]["vlSpec"]["encoding"]["x"]["axis"] = {"labelFontSize": 14, "titleFontSize": 16, "titlePadding": 16}
-        }
-        if(is_y){
-            y = visList[i]["vlSpec"]["encoding"]["y"]["field"];
-            visList[i]["vlSpec"]["encoding"]["y"]["axis"] = {"labelFontSize": 14, "titleFontSize": 16, "titlePadding": 16}
-        }
-        if(is_c){
-            c = visList[i]["vlSpec"]["encoding"]["color"]["field"];
-        }
-        if(is_s){
-            s = visList[i]["vlSpec"]["encoding"]["size"]["field"];
-        }
+    //     if(is_x){
+    //         x = visList[i]["vlSpec"]["encoding"]["x"]["field"];
+    //         visList[i]["vlSpec"]["encoding"]["x"]["axis"] = {"labelFontSize": 14, "titleFontSize": 16, "titlePadding": 16}
+    //     }
+    //     if(is_y){
+    //         y = visList[i]["vlSpec"]["encoding"]["y"]["field"];
+    //         visList[i]["vlSpec"]["encoding"]["y"]["axis"] = {"labelFontSize": 14, "titleFontSize": 16, "titlePadding": 16}
+    //     }
+    //     if(is_c){
+    //         c = visList[i]["vlSpec"]["encoding"]["color"]["field"];
+    //     }
+    //     if(is_s){
+    //         s = visList[i]["vlSpec"]["encoding"]["size"]["field"];
+    //     }
 
-        if((x!= null && currSelections.indexOf(x) === -1) || (y!=null &&  currSelections.indexOf(y) === -1) || (c!=null && currSelections.indexOf(c) === -1) || (s!=null && currSelections.indexOf(s) === -1)){
-            // console.log(x, y, c);
-            continue;
-        }
-        if(is_x && x in attrToDataMapping){
-            visList[i]["vlSpec"]["encoding"]["x"]["field"] = oldNewAmbiguousValues[attrToDataMapping[x]]["new"];
-        }
-        if(is_y && y in attrToDataMapping){
-            visList[i]["vlSpec"]["encoding"]["y"]["field"] = oldNewAmbiguousValues[attrToDataMapping[y]]["new"];
-        }
-        if(is_c && c in attrToDataMapping){
-            visList[i]["vlSpec"]["encoding"]["color"]["field"] = oldNewAmbiguousValues[attrToDataMapping[c]]["new"];
-        }
-        if(is_s && s in attrToDataMapping){
-            visList[i]["vlSpec"]["encoding"]["size"]["field"] = oldNewAmbiguousValues[attrToDataMapping[s]]["new"];
-        }
+    //     if((x!= null && currSelections.indexOf(x) === -1) || (y!=null &&  currSelections.indexOf(y) === -1) || (c!=null && currSelections.indexOf(c) === -1) || (s!=null && currSelections.indexOf(s) === -1)){
+    //         // console.log(x, y, c);
+    //         continue;
+    //     }
+    //     if(is_x && x in attrToDataMapping){
+    //         visList[i]["vlSpec"]["encoding"]["x"]["field"] = oldNewAmbiguousValues[attrToDataMapping[x]]["new"];
+    //     }
+    //     if(is_y && y in attrToDataMapping){
+    //         visList[i]["vlSpec"]["encoding"]["y"]["field"] = oldNewAmbiguousValues[attrToDataMapping[y]]["new"];
+    //     }
+    //     if(is_c && c in attrToDataMapping){
+    //         visList[i]["vlSpec"]["encoding"]["color"]["field"] = oldNewAmbiguousValues[attrToDataMapping[c]]["new"];
+    //     }
+    //     if(is_s && s in attrToDataMapping){
+    //         visList[i]["vlSpec"]["encoding"]["size"]["field"] = oldNewAmbiguousValues[attrToDataMapping[s]]["new"];
+    //     }
 
-        var chartTitle = [];
-        // MODIFY FILTER VALUE LEVEL AMBIGUITY
-        visList[i]["vlSpec"]["transform"].forEach(function(transformObj){
-            var _item = transformObj["filter"]["field"];
-            var clickedItems = oldNewAmbiguousAttribute[_item]["new"];
-            if("filter" in transformObj){
-                if(transformObj["filter"]["field"] == _item){
-                    clickedItems.forEach(function(clickedItem){
-                        attributeMap[_item]["meta"]["ambiguity"][dataQueryPhraseMapping[clickedItem]].forEach(function(to_remove){
-                            var index = transformObj["filter"]["oneOf"].indexOf(to_remove);
-                            if (index !== -1) transformObj["filter"]["oneOf"].splice(index, 1);
-                        });
-                        transformObj["filter"]["oneOf"].push(clickedItem);
-                    });
-                    chartTitle.push(_item + " = " + transformObj["filter"]["oneOf"].toString());
-                }
-            }
-        });
+    //     var chartTitle = [];
+    //     // MODIFY FILTER VALUE LEVEL AMBIGUITY
+    //     visList[i]["vlSpec"]["transform"].forEach(function(transformObj){
+    //         var _item = transformObj["filter"]["field"];
+    //         var clickedItems = oldNewAmbiguousAttribute[_item]["new"];
+    //         if("filter" in transformObj){
+    //             if(transformObj["filter"]["field"] == _item){
+    //                 clickedItems.forEach(function(clickedItem){
+    //                     attributeMap[_item]["meta"]["ambiguity"][dataQueryPhraseMapping[clickedItem]].forEach(function(to_remove){
+    //                         var index = transformObj["filter"]["oneOf"].indexOf(to_remove);
+    //                         if (index !== -1) transformObj["filter"]["oneOf"].splice(index, 1);
+    //                     });
+    //                     transformObj["filter"]["oneOf"].push(clickedItem);
+    //                 });
+    //                 chartTitle.push(_item + " = " + transformObj["filter"]["oneOf"].toString());
+    //             }
+    //         }
+    //     });
 
-        // Add FILTERS in the chart title
-        visList[i]["vlSpec"]["title"] = {
-          "text": chartTitle.join(" | "),
-          "align": "right",
-          "orient": "top",
-          "fontSize": 14,
-          "color": "gray",
-          "fontWeight": "light",
-          "anchor": "end"
-        }
+    //     // Add FILTERS in the chart title
+    //     visList[i]["vlSpec"]["title"] = {
+    //       "text": chartTitle.join(" | "),
+    //       "align": "right",
+    //       "orient": "top",
+    //       "fontSize": 14,
+    //       "color": "gray",
+    //       "fontWeight": "light",
+    //       "anchor": "end"
+    //     }
 
-        break
-    }
+    //     break
+    // }
 
-    return visList[i];
+    return visList[0];
 }
 
 function updateViz(spec){

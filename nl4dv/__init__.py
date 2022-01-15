@@ -43,7 +43,8 @@ class NL4DV:
                  attribute_datatype=None,
                  verbose=False,
                  debug=False):
-
+        #M
+        print("dev distribution:")
         # inputs
         self.data_url = data_url
         self.data_value = data_value
