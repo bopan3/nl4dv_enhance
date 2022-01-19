@@ -169,7 +169,7 @@ class VLGenie():
                         self.vl_spec['transform'].append({'filter':'lower(datum["{}"]) {} "{}"'.format(attr, symbol, task["values"][0])})
 
     def set_data(self, dataUrl, dataType="csv"):
-        # type: (list) -> None
+        ## type: (list) -> None
         """
         Set domain data for the visualization
 

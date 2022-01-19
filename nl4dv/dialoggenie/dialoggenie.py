@@ -54,7 +54,41 @@ class DialogGenie:
                   if(p_newed_by_c[field]['filter']['oneOf']!=c_newed_by_p[field]['filter']['oneOf']):
                       p_newed_by_c[field]['filter']['oneOf'].extend(c_newed_by_p[field]['filter']['oneOf'])
             self.previous_response['visList'][0]['vlSpec']['transform'] = list(p_newed_by_c.values())
-            return            
+            return   
+
+        elif mode == 'replace filter which has the same type&field':
+            tpft_pre = dict() # tpft: type&field map to filter
+            tpft_cur = dict()
+            # tp(type): dict/str
+            # ft:field
+            
+            for trans_pre in previous_transform:
+                if type(trans_pre['filter']) == type({}):
+                    tp = 'dict'
+                    ft = trans_pre['filter']['field']
+                elif type(trans_pre['filter']) == type(''):
+                    tp = 'str'
+                    left_idx = trans_pre['filter'].find('["')+2
+                    right_idx = trans_pre['filter'].find('"]')
+                    ft = trans_pre['filter'][left_idx:right_idx]
+                tpft_pre[(tp,ft)] = trans_pre     
+
+            for trans_cur in current_transform:
+                if list(trans_cur.keys())[0] == 'filter':
+                    if type(trans_cur['filter']) == type({}):
+                        tp = 'dict'
+                        ft = trans_cur['filter']['field']
+                    elif type(trans_cur['filter']) == type(''):
+                        tp = 'str'
+                        left_idx = trans_cur['filter'].find('["') + 2
+                        right_idx = trans_cur['filter'].find('"]')
+                        ft = trans_cur['filter'][left_idx:right_idx]
+                    tpft_cur[(tp,ft)] = trans_cur  
+
+            for fieldType_cur in tpft_cur:
+                tpft_pre[fieldType_cur] = tpft_cur[fieldType_cur]
+            self.previous_response['visList'][0]['vlSpec']['transform'] = list(tpft_pre.values())
+            return  
 
         else:
             raise ValueError("bad mode")

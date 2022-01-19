@@ -264,7 +264,7 @@ class NL4DV:
             #M check if the current query only has fillter task. if yes, renew the fillter of the previous response
             elif not self.task_genie_instance.has_non_filter_explicit_task_enhanced(output['taskMap']):
                 print("a follow up query!")
-                self.dialog_genie_instance.renew_fillter(output,mode='just add filter')
+                self.dialog_genie_instance.renew_fillter(output,mode='replace filter which has the same type&field')
             else:
                 print("normal query")
                 self.dialog_genie_instance.previous_response = output # cache the previous response for dialog
