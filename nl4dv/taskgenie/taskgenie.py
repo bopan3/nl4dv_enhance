@@ -173,16 +173,19 @@ class TaskGenie:
             for a in attributes:
                 if self.nl4dv_instance.data_genie_instance.data_attribute_map[a]["dataType"] != constants.attribute_types["QUANTITATIVE"]:
                     is_datatype_ambiguous = True
+                    self.nl4dv_instance.info_genie_instance.push_info(info = "task is a (><=)filter but the corresponding attribute is not Q type",type = 'datatype_ambiguous') #$#$#
                     break
         elif task in ["derived_value", "find_extremum"]:
             for a in attributes:
                 if self.nl4dv_instance.data_genie_instance.data_attribute_map[a]["dataType"] != constants.attribute_types["QUANTITATIVE"]:
                     is_datatype_ambiguous = True
+                    self.nl4dv_instance.info_genie_instance.push_info(info = "task is " + str(task) + ", but the corresponding attribute is not Q type",type = 'datatype_ambiguous') #@#@#
                     break
         elif task in ["trend"]:
             for a in attributes:
                 if self.nl4dv_instance.data_genie_instance.data_attribute_map[a]["dataType"] != constants.attribute_types["TEMPORAL"]:
                     is_datatype_ambiguous = True
+                    self.nl4dv_instance.info_genie_instance.push_info(info = "task is " + str(task) + ", but the corresponding attribute is not T type",type = 'datatype_ambiguous') #$#$#
                     break
 
         return is_datatype_ambiguous
@@ -624,6 +627,7 @@ class TaskGenie:
                                                  is_attr_ambiguous=any(self.nl4dv_instance.extracted_attributes[x]["isAmbiguous"] for x in attributes))
                         if task_obj not in task_map[task]:
                             task_map[task].append(task_obj)
+                            self.nl4dv_instance.info_genie_instance.push_info(info = "guess the task is"+task+"since we detect sorted_attr_datatype_combo_str("+str(sorted_attr_datatype_combo_str)+")",type = 'implicit inference') #$#$#
 
                     if sorted_attr_datatype_combo_str in ["QQ","QQN","QQO","QQQ","QQT"]:
                         # Add CORRELATION task
@@ -640,6 +644,7 @@ class TaskGenie:
 
                         if task_obj not in task_map[task]:
                             task_map[task].append(task_obj)
+                            self.nl4dv_instance.info_genie_instance.push_info(info = "guess the task is "+task+" since we detect sorted_attr_datatype_combo_str("+str(sorted_attr_datatype_combo_str)+")",type = 'implicit inference') #$#$#
 
                     if sorted_attr_datatype_combo_str in ["QN","QO","QNN","QNO","QOO"]:
                         # Add Derived Value task
@@ -657,6 +662,7 @@ class TaskGenie:
 
                         if task_obj not in task_map[task]:
                             task_map[task].append(task_obj)
+                            self.nl4dv_instance.info_genie_instance.push_info(info = "guess the task is "+task+" since we detect sorted_attr_datatype_combo_str("+str(sorted_attr_datatype_combo_str)+")",type = 'implicit inference') #$#$#
 
                     if sorted_attr_datatype_combo_str in ["Q","N","O","NN","NO","OO"]:
                         # Add Distribution task
@@ -673,6 +679,8 @@ class TaskGenie:
 
                         if task_obj not in task_map[task]:
                             task_map[task].append(task_obj)
+                            self.nl4dv_instance.info_genie_instance.push_info(info = "guess the task is "+task+" since we detect sorted_attr_datatype_combo_str("+str(sorted_attr_datatype_combo_str)+")",type = 'implicit inference') #@#@#
+
 
         return task_map
 

@@ -21,8 +21,15 @@ nl4dv_instance.set_dependency_parser(config=dependency_parser_config)
 # nl4dv_instance.render_vis("Show average gross across genres for science fiction")
 # nl4dv_instance.render_vis("gross over 100M")
 # nl4dv_instance.render_vis("show me medals for hockey and skating by country")
-nl4dv_instance.render_vis("year is 2019")
-# nl4dv_instance.render_vis("year between 2009 and 2010")
+# nl4dv_instance.render_vis("year is 2019")
+# nl4dv_instance.render_vis("show average genre across different gross")
+# nl4dv_instance.render_vis("show me the correlation of the budget and the ratings")
+# nl4dv_instance.render_vis("show me the relationship between the budget and the ratings")
+# nl4dv_instance.render_vis("gross over 200M")
+# nl4dv_instance.render_vis("use a piechart to show genres")
+nl4dv_instance.render_vis("Relationship between IMDB Rating and Rotten Tomatoes Rating")
+
+
 
 
 

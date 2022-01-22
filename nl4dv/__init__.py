@@ -1,4 +1,5 @@
 # In-built Libraries
+import copy
 import pprint
 import os
 import time
@@ -19,6 +20,7 @@ from nl4dv.querygenie import QueryGenie
 from nl4dv.attributegenie import AttributeGenie
 from nl4dv.taskgenie import TaskGenie
 from nl4dv.visgenie import VisGenie
+from nl4dv.infogenie import InfoGenie
 from nl4dv.dialoggenie import DialogGenie
 from nl4dv.utils import helpers, constants, error_codes
 
@@ -92,7 +94,9 @@ class NL4DV:
         self.attribute_genie_instance = AttributeGenie(self)   # initialize a AttributeGenie instance.
         self.task_genie_instance = TaskGenie(self)  # initialize a TaskGenie instance.
         self.vis_genie_instance = VisGenie(self)   # initialize a VisGenie instance.
-        self.dialog_genie_instance = DialogGenie(self)   # initialize a VisGenie instance.
+        self.dialog_genie_instance = DialogGenie(self)   # initialize a DialogGenie instance.
+        self.info_genie_instance = InfoGenie(self)   # initialize a InfoGenie instance.
+        self.info_genie_instance.push_info(info = "a new nl4dv instance") #@#@#
 
         # Set the dependency parser if config is not None
         if self.dependency_parser_config is not None:
@@ -187,9 +191,10 @@ class NL4DV:
         # DETECT EXPLICIT AND IMPLICIT ATTRIBUTES
         st = time.time()
         self.extracted_attributes = self.attribute_genie_instance.extract_attributes(self.query_ngrams)
-        # self.extracted_attributes.update(self.attribute_genie_instance.extract_attributes(self.query_ngrams))
-        # print(self.extracted_attributes)  #% FOR CODE UNDERSTAND %
-        # print(self.keyword_attribute_mapping)  #% FOR CODE UNDERSTAND %
+        if self.extracted_attributes == None:
+            self.info_genie_instance.push_info(info = "cannot extract any explicit attribute",type = 'missing') #$#$#  
+        else:
+            self.info_genie_instance.push_info(info = "extract explicit attribute("+str(list(self.extracted_attributes.keys()))+")",type = 'clue') #@#@#  
         helpers.cond_print("Final Extracted Attributes: " + str(list(self.extracted_attributes.keys())), self.verbose)
         self.execution_durations['extract_attributes'] = time.time() - st
         # pprint.pprint(self.keyword_attribute_mapping) #% FOR CODE UNDERSTAND %
@@ -197,6 +202,10 @@ class NL4DV:
         # DETECT EXPLICIT VISUALIZATION UTTERANCES
         st = time.time()
         self.extracted_vis_type, self.extracted_vis_token = self.vis_genie_instance.extract_vis_type(self.query_ngrams)
+        if self.extracted_vis_type == None:
+            self.info_genie_instance.push_info(info = "cannot extract any explicit vis type",type = 'missing') #@#@#
+        else:
+            self.info_genie_instance.push_info(info = "extract explicit vis type("+str(self.extracted_vis_type)+")",type = 'clue') #@#@#  
         # print(self.extracted_vis_type)
         # print("$$\n")
         # print(self.extracted_vis_token)
@@ -209,18 +218,26 @@ class NL4DV:
         self.dependencies = self.task_genie_instance.create_dependency_tree(self.query_for_task_inference)
         # pprint.pprint(self.dependencies) #% FOR CODE UNDERSTAND %
         task_map = self.task_genie_instance.extract_explicit_tasks_from_dependencies(self.dependencies)
-        # print(task_map)
+        if len(task_map.keys()) == 0:
+            self.info_genie_instance.push_info(info = "cannot extract any explicit analysis task",type = 'missing') #@#@#
+        else:
+            self.info_genie_instance.push_info(info = "extract explicit analysis task("+str(list(task_map.keys()))+")",type = 'clue') #$#$#  
+
 
         # Filters from Domain Values
+        old_task_map = copy.deepcopy(task_map)
         task_map = self.task_genie_instance.extract_explicit_tasks_from_domain_value(task_map)
-        # print(task_map)
-
+        if old_task_map == task_map:
+            self.info_genie_instance.push_info(info = "cannot extract any explicit 'domain_value filter' task",type = 'missing') #@#@#
+        else:
+            self.info_genie_instance.push_info(info = "extract explicit task by domain value("+str(list(set(task_map.keys())-set(old_task_map.keys())))+")",type = 'clue') #$#$#  
 
         # At this stage, which attributes are encodeable?
         encodeable_attributes = self.attribute_genie_instance.get_encodeable_attributes()
         # print(encodeable_attributes)
 
         # INFER tasks based on (encodeable) attribute Datatypes
+
         task_map = self.task_genie_instance.extract_implicit_tasks_from_attributes(task_map, encodeable_attributes)
         # print(task_map)
 
@@ -238,6 +255,8 @@ class NL4DV:
         # print(final_encodeable_attributes)
 
         self.vis_list = self.vis_genie_instance.get_vis_list(attribute_list=final_encodeable_attributes)
+        if len(self.vis_list) == 0:
+            self.info_genie_instance.push_info(info = "final vis_list is empty",type = 'FAILURE') #@#@#
         self.execution_durations['get_vis_list'] = time.time() - st
         self.execution_durations['total'] = sum(self.execution_durations.values())
 
@@ -268,8 +287,11 @@ class NL4DV:
             else:
                 print("normal query")
                 self.dialog_genie_instance.previous_response = output # cache the previous response for dialog
-            print("-----Data Transform---------")
-            print(self.dialog_genie_instance.previous_response['visList'][0]['vlSpec']['transform'])
+            if len(self.dialog_genie_instance.previous_response['visList']) != 0:
+                print("-----Data Transform---------")
+                print(self.dialog_genie_instance.previous_response['visList'][0]['vlSpec']['transform'])
+            else:
+                print("-----Empty Vislist---------")
             return self.dialog_genie_instance.previous_response  
         else:
             return output if self.debug else helpers.delete_keys_from_dict(output, keys=constants.keys_to_delete_in_output)
