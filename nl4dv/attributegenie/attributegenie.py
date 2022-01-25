@@ -402,11 +402,12 @@ class AttributeGenie:
         # Values to be returned
         query_attributes = dict()
 
+    #M this step has been one outside
         # Map between attribute and (score, corresponding word) from the query
-        self.nl4dv_instance.attribute_keyword_mapping = dict()
-
+        # self.nl4dv_instance.attribute_keyword_mapping = dict()
+    #M this step has been one outside
         # Map between keyword and the attribute to find ambiguous attributes
-        self.nl4dv_instance.keyword_attribute_mapping = dict()
+        # self.nl4dv_instance.keyword_attribute_mapping = dict()
 
         # map of attributes, and their variants - stemmed, lowercase, ...
         data_attributes = self.get_data_attributes()

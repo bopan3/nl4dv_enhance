@@ -84,6 +84,11 @@ class NL4DV:
         # Others
         self.dialog = False
         # self.dialog = True
+        # Map between attribute and (score, corresponding word) from the query
+        self.attribute_keyword_mapping = dict()
+        # Map between keyword and the attribute to find ambiguous attributes
+        self.keyword_attribute_mapping = dict()
+        self.explicit_domain_value_filter_task = list()
 
         # initialize porter stemmer instance
         self.porter_stemmer_instance = PorterStemmer()
@@ -192,9 +197,11 @@ class NL4DV:
         st = time.time()
         self.extracted_attributes = self.attribute_genie_instance.extract_attributes(self.query_ngrams)
         if self.extracted_attributes == None:
-            self.info_genie_instance.push_info(info = "cannot extract any explicit attribute",type = 'missing') #$#$#  
+            self.info_genie_instance.push_info(info = "cannot extract any explicit attribute",type = 'missing') #$#$# ATTRIBUTE 
         else:
             self.info_genie_instance.push_info(info = "extract explicit attribute("+str(list(self.extracted_attributes.keys()))+")",type = 'clue') #@#@#  
+            self.info_genie_instance.push_info(info = (self.extracted_attributes, self.keyword_attribute_mapping, self.attribute_keyword_mapping), type = 'attribute info') #$#$#  
+
         helpers.cond_print("Final Extracted Attributes: " + str(list(self.extracted_attributes.keys())), self.verbose)
         self.execution_durations['extract_attributes'] = time.time() - st
         # pprint.pprint(self.keyword_attribute_mapping) #% FOR CODE UNDERSTAND %
@@ -203,48 +210,42 @@ class NL4DV:
         st = time.time()
         self.extracted_vis_type, self.extracted_vis_token = self.vis_genie_instance.extract_vis_type(self.query_ngrams)
         if self.extracted_vis_type == None:
-            self.info_genie_instance.push_info(info = "cannot extract any explicit vis type",type = 'missing') #@#@#
+            self.info_genie_instance.push_info(info = "cannot extract any explicit vis type",type = 'missing') #@#@# VIS_TYPE
         else:
             self.info_genie_instance.push_info(info = "extract explicit vis type("+str(self.extracted_vis_type)+")",type = 'clue') #@#@#  
-        # print(self.extracted_vis_type)
-        # print("$$\n")
-        # print(self.extracted_vis_token)
         self.execution_durations['extract_vis_type'] = time.time() - st
 
         # DETECT IMPLICIT AND EXPLICIT TASKS
         st = time.time()
         self.query_for_task_inference = self.task_genie_instance.prepare_query_for_task_inference(self.query_processed)
-        # print(self.query_for_task_inference)
         self.dependencies = self.task_genie_instance.create_dependency_tree(self.query_for_task_inference)
-        # pprint.pprint(self.dependencies) #% FOR CODE UNDERSTAND %
         task_map = self.task_genie_instance.extract_explicit_tasks_from_dependencies(self.dependencies)
         if len(task_map.keys()) == 0:
-            self.info_genie_instance.push_info(info = "cannot extract any explicit analysis task",type = 'missing') #@#@#
+            self.info_genie_instance.push_info(info = "cannot extract any explicit 'dependency analysis' task",type = 'missing') #@#@# 'dependency analysis' TASK
         else:
-            self.info_genie_instance.push_info(info = "extract explicit analysis task("+str(list(task_map.keys()))+")",type = 'clue') #$#$#  
+            self.info_genie_instance.push_info(info = "extract explicit 'dependency analysis' task("+str(list(task_map.keys()))+")",type = 'clue') #@#@#  
+            self.info_genie_instance.push_info(info = task_map, type = "task info (explicit 'dependency analysis' task)") #@#@#  
+
 
 
         # Filters from Domain Values
-        old_task_map = copy.deepcopy(task_map)
         task_map = self.task_genie_instance.extract_explicit_tasks_from_domain_value(task_map)
-        if old_task_map == task_map:
-            self.info_genie_instance.push_info(info = "cannot extract any explicit 'domain_value filter' task",type = 'missing') #@#@#
+        if len(self.explicit_domain_value_filter_task) == 0:
+            self.info_genie_instance.push_info(info = "cannot extract any explicit 'domain_value filter' task",type = 'missing') #@#@# 'domain_value filter' TASK
         else:
-            self.info_genie_instance.push_info(info = "extract explicit task by domain value("+str(list(set(task_map.keys())-set(old_task_map.keys())))+")",type = 'clue') #$#$#  
+            self.info_genie_instance.push_info(info = "extract explicit 'domain_value filter' task",type = 'clue') #$#$#  
+            self.info_genie_instance.push_info(info = self.explicit_domain_value_filter_task, type = "task info (explicit 'domain_value' task)") #@#@#  
+
 
         # At this stage, which attributes are encodeable?
         encodeable_attributes = self.attribute_genie_instance.get_encodeable_attributes()
-        # print(encodeable_attributes)
 
         # INFER tasks based on (encodeable) attribute Datatypes
 
-        task_map = self.task_genie_instance.extract_implicit_tasks_from_attributes(task_map, encodeable_attributes)
-        # print(task_map)
+        task_map = self.task_genie_instance.extract_implicit_tasks_from_attributes(task_map, encodeable_attributes)   ##### 'implicit' TASK
 
         # From the generated TaskMap, ensure that the task "keys" are NOT EMPTY LISTS
         self.extracted_tasks = self.task_genie_instance.filter_empty_tasks(task_map)
-        # self.extracted_tasks.update(self.task_genie_instance.filter_empty_tasks(task_map))
-        # print(self.extracted_tasks)
         self.execution_durations['extract_tasks'] = time.time() - st
 
         # RECOMMEND VISUALIZATIONS FROM ATTRIBUTES, TASKS, and VISUALIZATIONS
@@ -252,7 +253,6 @@ class NL4DV:
 
         # Final list of encodeable attributes in the VIS
         final_encodeable_attributes = self.attribute_genie_instance.update_encodeable_attributes_based_on_tasks()
-        # print(final_encodeable_attributes)
 
         self.vis_list = self.vis_genie_instance.get_vis_list(attribute_list=final_encodeable_attributes)
         if len(self.vis_list) == 0:

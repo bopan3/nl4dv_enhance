@@ -588,6 +588,7 @@ class TaskGenie:
 
                 if task_obj not in task_map[task]:
                     task_map[task].append(task_obj)
+                    self.nl4dv_instance.explicit_domain_value_filter_task.append(task_obj)
 
         return task_map
 
@@ -627,7 +628,8 @@ class TaskGenie:
                                                  is_attr_ambiguous=any(self.nl4dv_instance.extracted_attributes[x]["isAmbiguous"] for x in attributes))
                         if task_obj not in task_map[task]:
                             task_map[task].append(task_obj)
-                            self.nl4dv_instance.info_genie_instance.push_info(info = "guess the task is"+task+"since we detect sorted_attr_datatype_combo_str("+str(sorted_attr_datatype_combo_str)+")",type = 'implicit inference') #$#$#
+                            self.nl4dv_instance.info_genie_instance.push_info(info = "guess the task is "+ str(task) +" since we detect sorted_attr_datatype_combo_str("+str(sorted_attr_datatype_combo_str)+")",type = 'implicit inference') #$#$#
+                            self.nl4dv_instance.info_genie_instance.push_info(info = task_obj, type = "task info (implicit guess)") #$#$#  
 
                     if sorted_attr_datatype_combo_str in ["QQ","QQN","QQO","QQQ","QQT"]:
                         # Add CORRELATION task
@@ -663,6 +665,8 @@ class TaskGenie:
                         if task_obj not in task_map[task]:
                             task_map[task].append(task_obj)
                             self.nl4dv_instance.info_genie_instance.push_info(info = "guess the task is "+task+" since we detect sorted_attr_datatype_combo_str("+str(sorted_attr_datatype_combo_str)+")",type = 'implicit inference') #$#$#
+                            self.nl4dv_instance.info_genie_instance.push_info(info = task_obj, type = "task info (implicit guess)") #$#$#  
+
 
                     if sorted_attr_datatype_combo_str in ["Q","N","O","NN","NO","OO"]:
                         # Add Distribution task

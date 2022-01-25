@@ -71,6 +71,7 @@ class VisGenie:
 
                     # Filter the DESIGN based on TASKs
                     if design_has_valid_task and design["task"] not in self.nl4dv_instance.extracted_tasks:
+                        self.nl4dv_instance.info_genie_instance.push_info(info = "for design[" + str(d_counter) + "](" + str(design['vis_type']) + "), directly give up this design since we have other design that can match the task better", type = 'unmatch') #@#@#
                         continue
 
                     # Filter the DESIGN based on explicit VISUALIZATIONS
@@ -98,6 +99,7 @@ class VisGenie:
                             "vlSpec": vl_genie_instance.vl_spec
                         }
                         if vis_object not in vis_objects and vis_object["score"] > 0:
+                            self.nl4dv_instance.info_genie_instance.push_info(info = "for design[" + str(d_counter) + "](" + str(design['vis_type']) + "), this design is append with score "+ str(vis_object['score']), type = 'SUCCESS') #@#@#
                             vis_objects.append(vis_object)
 
         return list(sorted(vis_objects, key=lambda o: o["score"], reverse=True))
@@ -134,7 +136,7 @@ class VisGenie:
                 datatype = self.nl4dv_instance.data_genie_instance.data_attribute_map[attr]["dataType"]
                 agg = design[encoding]["agg"]
                 vl_genie_instance.set_encoding(encoding, attr, datatype, agg)
-                self.nl4dv_instance.info_genie_instance.push_info(info = "for design[" + str(d_counter) + "](" + design['vis_type'] + "), since mandatory channel " + encoding + " is not defined by any specific attribute, automatically use the attribute of the channel "+ attr_reference +" and aggregation is "+agg,type = 'implicit inference') #@#@#
+                self.nl4dv_instance.info_genie_instance.push_info(info = "for design[" + str(d_counter) + "](" + str(design['vis_type']) + "), since mandatory channel " + str(encoding) + " is not defined by any specific attribute, automatically use the attribute of the channel "+ str(attr_reference) +" and aggregation is "+ str(agg),type = 'implicit inference') #@#@#
 
         # ENSURE if COMBOS has the attributes to which the TASK is applied. If NOT, don"t do anything.
         for task in self.nl4dv_instance.extracted_tasks:

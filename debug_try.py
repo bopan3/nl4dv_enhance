@@ -27,7 +27,12 @@ nl4dv_instance.set_dependency_parser(config=dependency_parser_config)
 # nl4dv_instance.render_vis("show me the relationship between the budget and the ratings")
 # nl4dv_instance.render_vis("gross over 200M")
 # nl4dv_instance.render_vis("use a piechart to show genres")
-nl4dv_instance.render_vis("Relationship between IMDB Rating and Rotten Tomatoes Rating")
+# nl4dv_instance.render_vis("Relationship between IMDB Rating and Rotten Tomatoes Rating")
+# nl4dv_instance.render_vis("show the budget and the rating as a bar chart")
+# nl4dv_instance.render_vis("what is the worldwide gross distribution per genre")
+nl4dv_instance.render_vis("gross across genres")
+
+
 
 
 
