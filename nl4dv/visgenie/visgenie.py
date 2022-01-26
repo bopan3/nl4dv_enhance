@@ -55,7 +55,7 @@ class VisGenie:
                 if not design_has_valid_task:
                     self.nl4dv_instance.info_genie_instance.push_info(info = "design for "+attr_type_str+" does not support any task in (" + str(list(self.nl4dv_instance.extracted_tasks.keys())) + ")",type = 'unmatch') #$#$#
                 else:
-                    self.nl4dv_instance.info_genie_instance.push_info(info = "design for "+attr_type_str+" support at least one task in (" + str(list(self.nl4dv_instance.extracted_tasks.keys())) + ")",type = 'clue') #@#@#
+                    self.nl4dv_instance.info_genie_instance.push_info(info = "design for "+attr_type_str+"(support task "+str(vis_design_combos[attr_type_str]["tasks"])+") support at least one task in (" + str(list(self.nl4dv_instance.extracted_tasks.keys())) + ")",type = 'clue') #@#@# 
 
                 
 
@@ -76,7 +76,7 @@ class VisGenie:
 
                     # Filter the DESIGN based on explicit VISUALIZATIONS
                     if design_has_valid_vis and self.nl4dv_instance.extracted_vis_type != design["vis_type"]:
-                        continue
+                        continue   #&&&&&&&&&&&&&&&&&&&&&
 
                     # Generate Vega-Lite specification along with it"s relevance score for the attribute and task combination.
                     vl_genie_instance = self.get_vis(design, attr_type_str, attr_list, d_counter)
@@ -148,6 +148,8 @@ class VisGenie:
                     if not (task_instance["isValueAmbiguous"] and task_instance["meta"]["value_ambiguity_type"] == "datatype"):
                         vl_genie_instance.set_task(None, task_instance)
                         vl_genie_instance.score_obj["by_task"] += task_instance["matchScore"]
+                    else: 
+                        print("pb find a new case!")
 
                 else:
                     # If a NON-FILTER task has an attribute that is NOT in the combos (means it was ambiguous), then No Need to Apply this FILTER.
@@ -166,7 +168,7 @@ class VisGenie:
                             for dimension in design["mandatory"]:
                                 attr = design[dimension]["attr"]
                                 if attr in task_instance["attributes"]:
-                                    vl_genie_instance.score_obj["by_task"] += task_instance["matchScore"]
+                                    vl_genie_instance.score_obj["by_task"] += task_instance["matchScore"] #&&&&&&&&&&&&&&&&&
 
                                     datatype = self.nl4dv_instance.data_genie_instance.data_attribute_map[attr]["dataType"]
                                     new_agg = constants.operator_symbol_mapping[task_instance["operator"]]

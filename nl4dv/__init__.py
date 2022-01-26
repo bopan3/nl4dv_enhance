@@ -181,6 +181,8 @@ class NL4DV:
         self.extracted_tasks = OrderedDict()
         self.extracted_attributes = OrderedDict()
         self.vis_list = None
+        self.explicit_domain_value_filter_task = list()
+
 
         # CLEAN AND PROCESS QUERY
         self.query_raw = query
@@ -196,7 +198,7 @@ class NL4DV:
         # DETECT EXPLICIT AND IMPLICIT ATTRIBUTES
         st = time.time()
         self.extracted_attributes = self.attribute_genie_instance.extract_attributes(self.query_ngrams)
-        if self.extracted_attributes == None:
+        if len(self.extracted_attributes) == 0:
             self.info_genie_instance.push_info(info = "cannot extract any explicit attribute",type = 'missing') #$#$# ATTRIBUTE 
         else:
             self.info_genie_instance.push_info(info = "extract explicit attribute("+str(list(self.extracted_attributes.keys()))+")",type = 'clue') #@#@#  
