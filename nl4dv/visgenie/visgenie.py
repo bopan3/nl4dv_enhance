@@ -86,17 +86,18 @@ class VisGenie:
                     for attr in attr_list:
                         confidence_obj[attr] = 0 if "confidence" not in self.nl4dv_instance.extracted_attributes[attr]["meta"] else self.nl4dv_instance.extracted_attributes[attr]["meta"]["confidence"]/100
 
-                    if vl_genie_instance is not None:
+                    if (vl_genie_instance is not None) and (vl_genie_instance[0] is not None):
                         vis_object = {
-                            "score": sum(vl_genie_instance.score_obj.values()) + sum(confidence_obj.values()),
-                            "scoreObj": vl_genie_instance.score_obj,
+                            "score": sum(vl_genie_instance[0].score_obj.values()) + sum(confidence_obj.values()),
+                            "scoreObj": vl_genie_instance[0].score_obj,
                             "confidenceObj": confidence_obj,
                             "attributes": attr_list,
                             "queryPhrase": self.nl4dv_instance.extracted_vis_token,
                             "visType": self.nl4dv_instance.extracted_vis_type,
                             "tasks": list(self.nl4dv_instance.extracted_tasks.keys()),
                             "inferenceType": 'implicit' if self.nl4dv_instance.extracted_vis_type is None else 'explicit',
-                            "vlSpec": vl_genie_instance.vl_spec
+                            "vlSpec": vl_genie_instance[0].vl_spec,
+                            'user_info':vl_genie_instance[1]
                         }
                         if vis_object not in vis_objects and vis_object["score"] > 0:
                             self.nl4dv_instance.info_genie_instance.push_info(info = "for design[" + str(d_counter) + "](" + str(design['vis_type']) + "), this design is append with score "+ str(vis_object['score']), type = 'SUCCESS') #@#@#
@@ -108,6 +109,7 @@ class VisGenie:
 
         # CREATE a new Vega-Lite Spec
         vl_genie_instance = VLGenie()
+        vis_user_info_instance = []
 
         # MAP the attributes to the DESIGN spec.
         for index, attr in enumerate(attr_list):
@@ -124,6 +126,7 @@ class VisGenie:
 
             # Set the encoding Note: Can be overridden later.
             vl_genie_instance.set_encoding(dim, attr, datatype, agg)
+            self.nl4dv_instance.info_genie_instance.user_info((dim,attr,agg,vis_user_info_instance), type = 'Vis encoded by auto Attribute binding')
 
             # Set Score
             vl_genie_instance.score_obj["by_attributes"] += self.nl4dv_instance.extracted_attributes[attr]["matchScore"]
@@ -137,6 +140,7 @@ class VisGenie:
                 agg = design[encoding]["agg"]
                 vl_genie_instance.set_encoding(encoding, attr, datatype, agg)
                 self.nl4dv_instance.info_genie_instance.push_info(info = "for design[" + str(d_counter) + "](" + str(design['vis_type']) + "), since mandatory channel " + str(encoding) + " is not defined by any specific attribute, automatically use the attribute of the channel "+ str(attr_reference) +" and aggregation is "+ str(agg),type = 'implicit inference') #@#@#
+                self.nl4dv_instance.info_genie_instance.user_info((dim,attr,agg,vis_user_info_instance), type = 'Vis mandatory channel encoded by another channel')
 
         # ENSURE if COMBOS has the attributes to which the TASK is applied. If NOT, don"t do anything.
         for task in self.nl4dv_instance.extracted_tasks:
@@ -162,7 +166,7 @@ class VisGenie:
                         # Datatype ambiguity example: "SUM(Genre)" is NOT possible because Genre is a Nominal attribute.
                         if not (task_instance["isValueAmbiguous"] and task_instance["meta"]["value_ambiguity_type"] == "datatype"):
                             if design["vis_type"] in ["histogram", "boxplot"]:
-                                return None
+                                return (None,vis_user_info_instance)
 
                             # Iterate over all encodings and if the corresponding attribute matches that in the task, then UPDATE the "aggregate".
                             for dimension in design["mandatory"]:
@@ -197,6 +201,9 @@ class VisGenie:
                         # Increment score by_task
                         vl_genie_instance.score_obj["by_task"] += task_instance["matchScore"]
 
+                        self.nl4dv_instance.info_genie_instance.user_info((task,"scatterplot",vis_user_info_instance), type = 'Override vistype because of task')           
+
+
                     elif task == "find_extremum":
                         # If there is NO Datatype Ambiguity, then apply the Derived Value Task. Else let it be the way it is.
                         # Datatype ambiguity example: "SUM(Genre)" is NOT possible because Genre is a Nominal attribute.
@@ -218,7 +225,7 @@ class VisGenie:
 
             # A design with PIECHART / DONUTCHART as a base should NOT be attempted to be transformed for a different mark type. Note: It has thetas, colors as opposed to x, y.
             if self.nl4dv_instance.extracted_vis_type not in ["piechart", "donutchart"] and design["vis_type"] in ["piechart", "donutchart"]:
-                return None
+                return (None,vis_user_info_instance)
 
             # PIE CHART + DONUT CHART
             # Can happen between 2 attributes {QN, QO} combinations
@@ -226,13 +233,13 @@ class VisGenie:
                 if attr_type_combo not in ["QN", "QO"]:
                     # print("Pie Chart not compatible / not supported for your query.")
                     self.nl4dv_instance.info_genie_instance.push_info(info = "for design[" + str(d_counter) + "](" + design['vis_type'] + "), Pie Chart not compatible / not supported for your query since your attrbute combination is " + attr_type_combo ,type = 'unmatch') #@#@#
-                    return None
+                    return (None,vis_user_info_instance)
 
             # HISTOGRAM
             elif self.nl4dv_instance.extracted_vis_type == "histogram":
                 if attr_type_combo not in ["Q", "N", "O", "T"]:
                     print("Histogram not compatible / not supported for your query.")
-                    return None
+                    return (None,vis_user_info_instance)
 
             # STRIP PLOT
             elif self.nl4dv_instance.extracted_vis_type == "stripplot":
@@ -256,7 +263,7 @@ class VisGenie:
             # AREA CHART
             elif self.nl4dv_instance.extracted_vis_type == "areachart":
                 if design["vis_type"] == "barchart":
-                    return None
+                    return (None,vis_user_info_instance)
 
             # SCATTERPLOT
             elif self.nl4dv_instance.extracted_vis_type == "scatterplot":
@@ -277,7 +284,7 @@ class VisGenie:
             elif self.nl4dv_instance.extracted_vis_type == "boxplot":
                 if "Q" not in attr_type_combo:
                     print("Box Plot requires at least one continuous axis. Not compatible / supported for your query.")
-                    return None
+                    return (None,vis_user_info_instance)
 
             # Set the VIS mark type in the vl_genie_instance
             vl_genie_instance.set_vis_type(self.nl4dv_instance.extracted_vis_type)
@@ -291,7 +298,7 @@ class VisGenie:
             # e.g. 2: for a specific task, if there are 2 equivalent visual recommendations, e.g. line chart and area chart, nl4dv could suggest just one to keep it simple.
             if design["not_suggested_by_default"]:
                 self.nl4dv_instance.info_genie_instance.push_info(info = "for design[" + str(d_counter) + "](" + design['vis_type'] + "), the design is not suggested by default",type = 'unsuggested') #@#@#
-                return None
+                return (None,vis_user_info_instance)
 
         # Encode the label attribute as a TOOLTIP to show the dataset label on hover.
         # Note: This will ONLY be added when there is NO aggregation, i.e., all data points are visible.
@@ -313,8 +320,8 @@ class VisGenie:
         # ------------------
         vl_genie_instance.set_data(self.nl4dv_instance.data_url, self.nl4dv_instance.data_url_type)
         # ------------------
-
-        return vl_genie_instance
+        
+        return (vl_genie_instance,vis_user_info_instance)
 
     # Return a Data Table in Vega-Lite
     def create_datatable_vis(self, sorted_combo):

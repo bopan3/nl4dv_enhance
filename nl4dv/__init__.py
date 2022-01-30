@@ -203,6 +203,7 @@ class NL4DV:
         else:
             self.info_genie_instance.push_info(info = "extract explicit attribute("+str(list(self.extracted_attributes.keys()))+")",type = 'clue') #@#@#  
             self.info_genie_instance.push_info(info = (self.extracted_attributes, self.keyword_attribute_mapping, self.attribute_keyword_mapping), type = 'attribute info') #$#$#  
+        self.info_genie_instance.user_info(self.extracted_attributes, type = 'Attribue implied by Query')
 
         helpers.cond_print("Final Extracted Attributes: " + str(list(self.extracted_attributes.keys())), self.verbose)
         self.execution_durations['extract_attributes'] = time.time() - st
@@ -227,6 +228,7 @@ class NL4DV:
         else:
             self.info_genie_instance.push_info(info = "extract explicit 'dependency analysis' task("+str(list(task_map.keys()))+")",type = 'clue') #@#@#  
             self.info_genie_instance.push_info(info = task_map, type = "task info (explicit 'dependency analysis' task)") #@#@#  
+        self.info_genie_instance.user_info(task_map, type = 'Task extracted from dependency tree')
 
 
 
@@ -237,7 +239,7 @@ class NL4DV:
         else:
             self.info_genie_instance.push_info(info = "extract explicit 'domain_value filter' task",type = 'clue') #$#$#  
             self.info_genie_instance.push_info(info = self.explicit_domain_value_filter_task, type = "task info (explicit 'domain_value' task)") #@#@#  
-
+        self.info_genie_instance.user_info(self.explicit_domain_value_filter_task, type = 'Task extracted from domain value match')
 
         # At this stage, which attributes are encodeable?
         encodeable_attributes = self.attribute_genie_instance.get_encodeable_attributes()
@@ -276,7 +278,9 @@ class NL4DV:
             'followUpQuery': self.dialog,
             'contextObj': None
         }
-
+        for info in self.vis_list[0]['user_info']:
+            self.info_genie_instance.user_info_list.append(info)
+        self.info_genie_instance.user_info_show()
         if dialog:
             #M if this is the first query, force it to be a normal query
             if self.dialog_genie_instance.previous_response == None:
