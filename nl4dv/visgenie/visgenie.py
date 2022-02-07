@@ -130,6 +130,7 @@ class VisGenie:
 
             # Set Score
             vl_genie_instance.score_obj["by_attributes"] += self.nl4dv_instance.extracted_attributes[attr]["matchScore"]
+        self.nl4dv_instance.info_genie_instance.user_info((design["vis_type"],attr_list,vis_user_info_instance), type = 'Vistype chosen by attribute comb')
 
         # If an attribute is dual-encoded e.g. x axis as well as count of y axis, the attribute is supposed to be encoded to both channels.
         for encoding in design["mandatory"]:
@@ -176,6 +177,7 @@ class VisGenie:
 
                                     datatype = self.nl4dv_instance.data_genie_instance.data_attribute_map[attr]["dataType"]
                                     new_agg = constants.operator_symbol_mapping[task_instance["operator"]]
+                                    self.nl4dv_instance.info_genie_instance.user_info((task,dimension,{'old_aggregation':design[dimension]['agg'], 'new_aggregation':new_agg}, vis_user_info_instance), type = 'Override aggregation because of task')           
                                     vl_genie_instance.set_encoding(dimension, attr, datatype, new_agg)
                         else:
                             self.nl4dv_instance.info_genie_instance.push_info(info = "for design[" + str(d_counter) + "](" + design['vis_type'] + "), since datatype_ambiguous problem happened in derived_value task, we give up modifying the design based on this task", type = 'auto correction') #@#@#
@@ -190,6 +192,7 @@ class VisGenie:
                             if design[dimension]["attr"] in task_instance["attributes"]:
                                 # If there exists some aggregate already, then this is a CONFLICT and we should DEDUCT points
                                 if design[dimension]['agg'] is not None:
+                                    self.nl4dv_instance.info_genie_instance.user_info((task,dimension,{'old_aggregation':design[dimension]['agg'], 'new_aggregation':None}, vis_user_info_instance), type = 'Override aggregation because of task')           
                                     vl_genie_instance.score_obj["by_task"] -= 1
 
                                 design[dimension]['agg'] = None
@@ -201,7 +204,7 @@ class VisGenie:
                         # Increment score by_task
                         vl_genie_instance.score_obj["by_task"] += task_instance["matchScore"]
 
-                        self.nl4dv_instance.info_genie_instance.user_info((task,"scatterplot",vis_user_info_instance), type = 'Override vistype because of task')           
+                        self.nl4dv_instance.info_genie_instance.user_info((task,"scatterplot",vis_user_info_instance), type = 'Override vistype because of task')  
 
 
                     elif task == "find_extremum":
@@ -215,6 +218,7 @@ class VisGenie:
                                 if attr in task_instance["attributes"]:
                                     vl_genie_instance.score_obj["by_task"] += task_instance["matchScore"]
                                     vl_genie_instance.set_task(dimension, task_instance)
+                                    self.nl4dv_instance.info_genie_instance.user_info((task,dimension, vis_user_info_instance), type = 'Sort one dimension because of task')           
 
                     elif task == "trend":
                         pass
@@ -288,6 +292,8 @@ class VisGenie:
 
             # Set the VIS mark type in the vl_genie_instance
             vl_genie_instance.set_vis_type(self.nl4dv_instance.extracted_vis_type)
+            self.nl4dv_instance.info_genie_instance.user_info((self.nl4dv_instance.extracted_vis_type,self.nl4dv_instance.extracted_vis_token,vis_user_info_instance), type = 'Final choice of vistype based on query')  
+
 
             # just here because the user/developer explicitly requested this
             vl_genie_instance.score_obj["by_vis"] += self.nl4dv_instance.match_scores['vis']['explicit']
@@ -328,6 +334,7 @@ class VisGenie:
 
         # Create a new base Vega-Lite Spec
         vl_genie_instance = VLGenie()
+        vis_user_info_instance = []
 
         # Set the explicit_vis_type to a datatable and then make relevant transforms there.
         vl_genie_instance.set_vis_type("datatable")
@@ -364,7 +371,8 @@ class VisGenie:
             "queryPhrase": None,
             "tasks": list(self.nl4dv_instance.extracted_tasks.keys()),
             "inferenceType": 'implicit' if self.nl4dv_instance.extracted_vis_type is None else 'explicit',
-            "vlSpec": vl_genie_instance.vl_spec
+            "vlSpec": vl_genie_instance.vl_spec,
+            'user_info':vis_user_info_instance
         }
 
         return vis_object

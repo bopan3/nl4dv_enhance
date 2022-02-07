@@ -1,3 +1,5 @@
 *__pycache__/
+*.xlsx
+*.csv
 examples/assets/jars/stanford-english-corenlp-2018-10-05-models.jar
 examples/assets/jars/stanford-parser.jar

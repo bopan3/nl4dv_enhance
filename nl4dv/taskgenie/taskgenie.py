@@ -629,7 +629,9 @@ class TaskGenie:
                         if task_obj not in task_map[task]:
                             task_map[task].append(task_obj)
                             self.nl4dv_instance.info_genie_instance.push_info(info = "guess the task is "+ str(task) +" since we detect sorted_attr_datatype_combo_str("+str(sorted_attr_datatype_combo_str)+")",type = 'implicit inference') #$#$#
-                            self.nl4dv_instance.info_genie_instance.push_info(info = task_obj, type = "task info (implicit guess)") #$#$#  
+                            self.nl4dv_instance.info_genie_instance.push_info(info = task_obj, type = "task info (implicit guess)") #$#$# 
+                            self.nl4dv_instance.info_genie_instance.user_info((task_obj,sorted_attr_combo,sorted_attr_datatype_combo_str), type = 'Task implicitly inferred from attr')           
+                            
 
                     if sorted_attr_datatype_combo_str in ["QQ","QQN","QQO","QQQ","QQT"]:
                         # Add CORRELATION task
@@ -647,6 +649,7 @@ class TaskGenie:
                         if task_obj not in task_map[task]:
                             task_map[task].append(task_obj)
                             self.nl4dv_instance.info_genie_instance.push_info(info = "guess the task is "+task+" since we detect sorted_attr_datatype_combo_str("+str(sorted_attr_datatype_combo_str)+")",type = 'implicit inference') #$#$#
+                            self.nl4dv_instance.info_genie_instance.user_info((task_obj,sorted_attr_combo,sorted_attr_datatype_combo_str), type = 'Task implicitly inferred from attr')           
 
                     if sorted_attr_datatype_combo_str in ["QN","QO","QNN","QNO","QOO"]:
                         # Add Derived Value task
@@ -666,6 +669,7 @@ class TaskGenie:
                             task_map[task].append(task_obj)
                             self.nl4dv_instance.info_genie_instance.push_info(info = "guess the task is "+task+" since we detect sorted_attr_datatype_combo_str("+str(sorted_attr_datatype_combo_str)+")",type = 'implicit inference') #$#$#
                             self.nl4dv_instance.info_genie_instance.push_info(info = task_obj, type = "task info (implicit guess)") #$#$#  
+                            self.nl4dv_instance.info_genie_instance.user_info((task_obj,sorted_attr_combo,sorted_attr_datatype_combo_str), type = 'Task implicitly inferred from attr')           
 
 
                     if sorted_attr_datatype_combo_str in ["Q","N","O","NN","NO","OO"]:
@@ -684,6 +688,7 @@ class TaskGenie:
                         if task_obj not in task_map[task]:
                             task_map[task].append(task_obj)
                             self.nl4dv_instance.info_genie_instance.push_info(info = "guess the task is "+task+" since we detect sorted_attr_datatype_combo_str("+str(sorted_attr_datatype_combo_str)+")",type = 'implicit inference') #@#@#
+                            self.nl4dv_instance.info_genie_instance.user_info((task_obj,sorted_attr_combo,sorted_attr_datatype_combo_str), type = 'Task implicitly inferred from attr')           
 
 
         return task_map

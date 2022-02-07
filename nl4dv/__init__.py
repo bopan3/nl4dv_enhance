@@ -278,8 +278,8 @@ class NL4DV:
             'followUpQuery': self.dialog,
             'contextObj': None
         }
-        for info in self.vis_list[0]['user_info']:
-            self.info_genie_instance.user_info_list.append(info)
+        for info_of_chosen_vis in self.vis_list[0]['user_info']:
+            self.info_genie_instance.user_info_list.append(info_of_chosen_vis)
         self.info_genie_instance.user_info_show()
         if dialog:
             #M if this is the first query, force it to be a normal query
